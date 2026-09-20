@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>401(k) Rescue Empire — iDecide Blueprint — Sunny Mitra</title>
+<style>
+  :root{
+    --navy:#0D1B33; --panel:#14233F; --panel2:#0F1E38; --gold:#D4A017;
+    --cream:#F2EBDC; --muted:#9FB0CC; --line:#3A4A6B;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{background:var(--navy); color:var(--cream); font-family:Georgia,'Times New Roman',serif; min-height:100vh;}
+  button{font-family:Verdana,sans-serif; cursor:pointer;}
+  input,textarea{font-family:inherit;}
+
+  header{text-align:center; padding:26px 16px 6px;}
+  .eyebrow{font-size:12px; letter-spacing:.35em; color:var(--gold); text-transform:uppercase; font-family:Verdana,sans-serif;}
+  h1{margin:8px 0 2px; font-size:clamp(22px,4vw,38px); letter-spacing:.04em;}
+  .tagline{font-style:italic; color:var(--gold); font-size:clamp(13px,2vw,17px);}
+
+  /* Radial map */
+  #map{position:relative; max-width:1100px; height:680px; margin:0 auto; padding:0 20px;}
+  #spokes{position:absolute; inset:0; width:100%; height:100%; pointer-events:none;}
+
+  #hub{position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:196px; height:196px; border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #2A4070, #14233F 70%); border:3px solid var(--gold);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;
+    padding:16px; z-index:2; animation:hubPulse 3.2s ease-in-out infinite; cursor:pointer;
+    transition:transform .18s ease, box-shadow .18s ease;}
+  #hub:hover{transform:translate(-50%,-50%) scale(1.06); box-shadow:0 0 32px rgba(212,160,23,.5);}
+  #hub .t{font-size:15px; font-weight:bold; line-height:1.3; color:#ffffff;}
+  #hub .s{font-size:10px; color:var(--gold); font-style:italic; margin-top:7px; line-height:1.4;}
+  @keyframes hubPulse{0%,100%{box-shadow:0 0 0 0 rgba(212,160,23,.45);}50%{box-shadow:0 0 0 18px rgba(212,160,23,0);}}
+
+  .node{position:absolute; transform:translate(-50%,-50%); width:200px; background:var(--panel);
+    border-radius:12px; padding:11px 13px; text-align:left; color:var(--cream); z-index:3; border:2px solid;
+    transition:transform .18s ease, box-shadow .18s ease;}
+  .node:hover,.node:focus-visible{transform:translate(-50%,-50%) scale(1.05); outline:none; box-shadow:0 8px 28px rgba(0,0,0,.5);}
+  .node .nt{font-weight:bold; font-size:14px; margin-bottom:6px; color:#fff; font-family:Georgia,serif; line-height:1.3;}
+  .node .sub{font-size:11px; font-family:Verdana,sans-serif; color:#C9D4E8; padding:2px 0; display:flex; gap:6px; text-align:left;}
+  .node .open{margin-top:7px; font-size:10px; font-family:Verdana,sans-serif; letter-spacing:.12em; text-transform:uppercase;}
+
+  /* Mobile card list */
+  #cards{display:none; gap:12px; padding:16px; max-width:520px; margin:0 auto;}
+  .card{background:var(--panel); border-radius:12px; padding:13px 15px; text-align:left; color:var(--cream); border:2px solid; width:100%;}
+  .card .nt{font-weight:bold; font-size:16px; color:#fff; font-family:Georgia,serif; margin-bottom:4px;}
+  .card .subs{font-size:12px; font-family:Verdana,sans-serif; color:#C9D4E8;}
+
+  @media (max-width:768px){ #map{display:none;} #cards{display:grid;} }
+
+  /* Modal */
+  #overlay{position:fixed; inset:0; background:rgba(6,12,24,.85); z-index:50; display:none; align-items:center; justify-content:center; padding:14px;}
+  #panel{background:var(--panel2); border-radius:16px; max-width:720px; width:100%; max-height:88vh; overflow-y:auto; padding:22px 24px; animation:fadeUp .3s ease both; border:2px solid;}
+  @keyframes fadeUp{from{opacity:0; transform:translateY(10px);}to{opacity:1; transform:none;}}
+  .panelHead{display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap; margin-bottom:4px;}
+  #panelTitle{font-size:24px; color:#fff; line-height:1.3;}
+  #subsWrap{margin:12px 0 16px; display:flex; gap:8px; flex-wrap:wrap; align-items:center;}
+  .chip{border-radius:16px; padding:5px 13px; font-size:12px; font-family:Verdana,sans-serif; border:1px solid;}
+  .azLabel{font-size:12px; letter-spacing:.25em; text-transform:uppercase; font-family:Verdana,sans-serif; margin-bottom:10px;}
+  .step{display:flex; gap:12px; margin-bottom:12px; animation:fadeUp .35s ease both;}
+  .stepNum{min-width:30px; height:30px; border-radius:50%; color:var(--navy); display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:14px; font-family:Verdana,sans-serif; margin-top:2px; flex-shrink:0;}
+  .step p{font-size:15px; line-height:1.65; color:#E7E0CF;}
+  .closeBtn{border-radius:20px; padding:6px 14px; font-size:12px; font-weight:bold; background:transparent; border:1px solid var(--line); color:var(--muted); cursor:pointer;}
+
+  footer{text-align:center; padding:18px 16px 30px; font-size:11px; color:#5F7095; font-family:Verdana,sans-serif;}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important;}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Sunny Mitra · Atlanta First Guaranty · September 10, 2026 · Confidential</div>
+  <h1>401(k) RESCUE EMPIRE</h1>
+  <div class="tagline">"When was the last time your accountant called you with a proactive tax savings idea?"</div>
+</header>
+
+<div id="map">
+  <svg id="spokes"></svg>
+  <button id="hub" onclick="openHubPanel()" aria-label="Open Welcome — Find Your Number">
+    <div class="t">WELCOME &amp;<br>FIND YOUR<br>NUMBER</div>
+    <div class="s">The Empire Engine Calculator<br>Your number. Your rescue. First.</div>
+  </button>
+</div>
+
+<div id="cards"></div>
+
+<div id="overlay" onclick="if(event.target===this) closePanel()">
+  <div id="panel" role="dialog" aria-modal="true">
+    <div class="panelHead">
+      <h2 id="panelTitle"></h2>
+      <button class="closeBtn" onclick="closePanel()">✕ Close</button>
+    </div>
+    <div id="subsWrap"></div>
+    <div class="azLabel" id="azLabel">What's inside</div>
+    <div id="steps"></div>
+  </div>
+</div>
+
+<footer>Atlanta First Guaranty · Sunny Mitra · Confidential · September 10, 2026</footer>
+
+<script>
+const NODES = [
+  {
+    id:"rescue",
+    title:"401(k) Rescue Strategy",
+    color:"#D4A017",
+    subs:["The Course","RMD Freight Train","IRMAA Surcharge"],
+    story:[
+      "THE COURSE — Everything your CPA never told you about your own retirement account, taught in plain language. No jargon. No confusion. Just the truth about what is waiting — and what you can do about it.",
+      "RMD FREIGHT TRAIN — At age 73 the IRS forces withdrawals from your 401(k), taxed as ordinary income, whether you need the money or not. This door shows you exactly what that number looks like — and how to reduce it.",
+      "IRMAA SURCHARGE — The silent Medicare penalty. When your RMD income crosses the threshold, your Medicare premiums jump $4,000–$5,000 per person per year. Nobody warned you. We will.",
+      "💡 Every door in this section connects directly to your number from the Welcome calculator. It is not generic. It is your freight tax train — and your rescue roadmap."
+    ]
+  },
+  {
+    id:"roth",
+    title:"Roth Conversion",
+    color:"#4C9A6B",
+    subs:["What Is a Roth?","Is It Right for You?","Which Vehicle Is Best?"],
+    story:[
+      "WHAT IS A ROTH? — The Roth IRA and Roth 401(k) explained in plain English. No jargon. Pros, cons, rules, and the one thing every boomer needs to understand: Roth accounts have no RMDs, grow tax-free, and distribute tax-free.",
+      "IS IT RIGHT FOR YOU? — Not everyone should convert. Age, income, account size, tax bracket, and your conversion window all determine the answer. This door walks you through the exact questions to ask — and what the answers mean for your specific situation.",
+      "WHICH VEHICLE IS BEST? — The market? An insurance product? A combination of both? There is no single right answer. This module shows you how to ask the right questions — so you can make the right choice for your situation.",
+      "💡 The 401(k) is the prison. The IRA is the prison. The ROTH is the key. By the time you finish this module, you will know exactly which door opens for you — and how to walk through it."
+    ]
+  },
+  {
+    id:"taxmit",
+    title:"Tax Mitigation Strategy",
+    color:"#3E7CB1",
+    subs:["Tax Mitigation","Tax Recovery","W-2 Employees"],
+    story:[
+      "TAX MITIGATION — Discover how executives and high-income professionals are legally recovering taxes from previous years — and cutting future bills by 50% or more. Learn how the five core categories of tax mitigation work — and which ones apply to your specific situation.",
+      "TAX RECOVERY — Meet Raj. Successful business owner. Paid for a strategy his CPA could not file. We rebuilt his plan and recovered his overpaid taxes for that year. Your situation may be closer to Raj's than you think.",
+      "W-2 EMPLOYEES — Every advisor told you: you are W-2, you have no options. Because you do not own a business, they said, your hands are tied. This module shows you exactly why that is wrong — how to reclaim what was taken before, reduce what you owe now, and protect more of what you earn going forward.",
+      "💡 Most CPAs do your taxes. You are about to optimize them. There is a difference — and that difference is worth $47,000 to $500,000 to someone who finally knows what we know."
+    ]
+  },
+  {
+    id:"vault",
+    title:"The Secret Vault",
+    color:"#7C5CBF",
+    subs:["A Free Strategy Session","The Book","Fractional Family Office"],
+    story:[
+      "A FREE STRATEGY SESSION — 1-on-1 with Sunny. No group calls. No recordings. Your numbers, your rescue plan, your next move. Learn it here — then take it to your own advisor and protect hundreds of thousands of dollars in taxes for the rest of your life.",
+      "THE BOOK — 'How to Beat the IRS, Legally' — co-authored by Sunny Mitra and Edward A. Lyon, JD. Ed Lyon trained 3,000+ tax professionals nationwide and appeared on CNN, Fox News, MSNBC, and CNBC over 300 times. Free download included.",
+      "FRACTIONAL FAMILY OFFICE — There are fewer than 40 firms in the United States where a CPA, financial advisor, fiduciary, insurance advisor, and tax attorney work together under one roof — on your behalf. Most people with $1M+ in retirement assets have never heard of this concept. This module shows you what it is, why it changes everything, and how to find one.",
+      "📚 BONUS — Long-Term Care Library. Sunny's full library on long-term care planning. For anyone thinking seriously about the next 20 years, this alone is worth the price of admission.",
+      "🛡️ BONUS — Asset Protection & Trusts. How to protect what the rescue saves. Wills, trusts, estate basics. The foundation of a legacy you can actually leave.",
+      "🎧 BONUS — Audio, Video & Podcast Library. Every Reel, every YouTube video, every podcast episode — organized by topic. For the car, the walk, the quiet evening. Your education continues everywhere you go."
+    ]
+  }
+];
+
+// Four-node positions per Sunny's instruction:
+// Right — 401(k) Rescue, Bottom — Roth Conversion, Left — Tax Mitigation, Top — Secret Vault
+const POSITIONS = [
+  {x:88, y:50},   // right — 401(k) Rescue
+  {x:50, y:90},   // bottom — Roth Conversion
+  {x:12, y:50},   // left — Tax Mitigation
+  {x:50, y:18}    // top — Secret Vault
+];
+
+let openId = null;
+const $ = id => document.getElementById(id);
+
+const HUB_PANEL = {
+  title:"Welcome — Find Your Number First",
+  color:"#D4A017",
+  subs:["The Empire Engine Calculator · Free · Personal · Instant"],
+  story:[
+    "Before you open a single door, find your number. Enter your 401(k) or IRA balance, your age, your income, and your state.",
+    "The calculator generates your personal RMD exposure, your IRMAA risk, and your projected tax burden — specific to you, not to a hypothetical person.",
+    "This number is your compass. Without it, the four modules ahead are interesting but abstract. With it, every lesson becomes personal. You will know exactly what you are solving for.",
+    "Write your number down. Keep it with you. Every door you open from here connects back to it.",
+    "💡 A journey without a destination is just wandering. Your number is your destination. Start here."
+  ]
+};
+
+function openHubPanel(){
+  renderModalContent(HUB_PANEL);
+  $("overlay").style.display = "flex";
+}
+
+function openPanel(id){
+  openId = id;
+  const n = NODES.find(n => n.id === id);
+  if(!n) return;
+  renderModalContent(n);
+  $("overlay").style.display = "flex";
+}
+
+function renderModalContent(n){
+  const panel = $("panel");
+  panel.style.borderColor = n.color;
+  panel.style.borderTop = "6px solid " + n.color;
+  $("azLabel").style.color = n.color;
+  $("panelTitle").textContent = n.title;
+
+  // chips
+  const sw = $("subsWrap"); sw.innerHTML = "";
+  n.subs.forEach(s => {
+    const chip = document.createElement("span");
+    chip.className = "chip";
+    chip.style.background = n.color + "26";
+    chip.style.borderColor = n.color;
+    chip.textContent = s;
+    sw.appendChild(chip);
+  });
+
+  // steps
+  const st = $("steps"); st.innerHTML = "";
+  n.story.forEach((step, k) => {
+    const row = document.createElement("div");
+    row.className = "step";
+    row.style.animationDelay = (k * 0.05) + "s";
+    const num = document.createElement("div");
+    num.className = "stepNum";
+    num.style.background = n.color;
+    num.textContent = k + 1;
+    const p = document.createElement("p");
+    p.textContent = step;
+    row.append(num, p);
+    st.appendChild(row);
+  });
+}
+
+function closePanel(){
+  $("overlay").style.display = "none";
+  openId = null;
+}
+
+function renderMap(){
+  // spokes
+  let svg = "";
+  NODES.forEach((n, i) => {
+    const p = POSITIONS[i];
+    svg += `<line x1="50%" y1="50%" x2="${p.x}%" y2="${p.y}%" stroke="${n.color}" stroke-width="2.5" stroke-dasharray="7 5" opacity="0.6"/>`;
+  });
+  $("spokes").innerHTML = svg;
+
+  // desktop nodes
+  document.querySelectorAll(".node").forEach(el => el.remove());
+  NODES.forEach((n, i) => {
+    const p = POSITIONS[i];
+    const b = document.createElement("button");
+    b.className = "node";
+    b.style.left = p.x + "%";
+    b.style.top = p.y + "%";
+    b.style.borderColor = n.color;
+    b.style.borderTop = "6px solid " + n.color;
+    b.setAttribute("aria-label", "Open " + n.title);
+    b.onclick = () => openPanel(n.id);
+
+    const nt = document.createElement("div");
+    nt.className = "nt";
+    nt.textContent = n.title;
+    b.appendChild(nt);
+
+    n.subs.forEach(s => {
+      const sub = document.createElement("div");
+      sub.className = "sub";
+      sub.innerHTML = `<span style="color:${n.color}">◆</span><span>${s}</span>`;
+      b.appendChild(sub);
+    });
+
+    const open = document.createElement("div");
+    open.className = "open";
+    open.style.color = n.color;
+    open.textContent = "Open →";
+    b.appendChild(open);
+
+    $("map").appendChild(b);
+  });
+
+  // mobile cards
+  $("cards").innerHTML = "";
+  NODES.forEach(n => {
+    const c = document.createElement("button");
+    c.className = "card";
+    c.style.borderColor = n.color;
+    c.style.borderLeft = "8px solid " + n.color;
+    c.onclick = () => openPanel(n.id);
+    c.innerHTML = `<div class="nt">${n.title}</div><div class="subs">${n.subs.join("  ·  ")}</div>`;
+    $("cards").appendChild(c);
+  });
+}
+
+document.addEventListener("keydown", e => { if(e.key === "Escape") closePanel(); });
+
+renderMap();
+</script>
+</body>
+</html>
